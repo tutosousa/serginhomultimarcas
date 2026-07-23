@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel da Loja — Serginho Multimarcas</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="logo-crop.png">
+<link rel="stylesheet" href="style.css">
+<style>
+  .admin-wrap{max-width:1040px;margin:0 auto}
+  .admin-box{background:var(--paper);border:1px solid var(--linha);border-radius:var(--radius);padding:36px;box-shadow:var(--shadow-sm)}
+  .admin-login{max-width:420px;margin:60px auto}
+  .admin-login h1{font-size:1.6rem;margin-bottom:8px;text-align:center}
+  .admin-login p{color:var(--ink-soft);text-align:center;margin-bottom:26px;font-size:.92rem}
+  .campo{margin-bottom:16px}
+  .campo label{display:block;font-family:var(--font-mono);font-size:.7rem;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px}
+  .campo input,.campo select,.campo textarea{width:100%;padding:11px 13px;border:1px solid var(--linha);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:.95rem;background:#fff;color:var(--ink)}
+  .campo textarea{resize:vertical;min-height:70px}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .form-grid .full{grid-column:1/-1}
+  .foto-item{position:relative;width:90px}
+  .foto-item img{width:90px;height:112px;object-fit:cover;border-radius:8px;display:block;border:1px solid var(--linha)}
+  .foto-item .foto-remover{position:absolute;top:-8px;right:-8px;width:22px;height:22px;border-radius:50%;background:var(--preto);color:var(--dourado-100);border:2px solid var(--paper);cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center}
+  .foto-item .foto-capa{position:absolute;bottom:2px;left:2px;right:2px;background:rgba(11,11,12,.75);color:#fff;font-family:var(--font-mono);font-size:.58rem;text-align:center;padding:2px 0;border-radius:2px}
+  .msg{padding:12px 16px;border-radius:var(--radius-sm);font-size:.88rem;margin-bottom:18px;display:none}
+  .msg.erro{background:#FBEAEA;color:#A13A3A;display:block}
+  .msg.ok{background:var(--dourado-100);color:#5C4A1E;display:block}
+  .tabela-produtos{width:100%;border-collapse:collapse;margin-top:10px;font-size:.88rem}
+  .tabela-produtos th{text-align:left;font-family:var(--font-mono);font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);padding:10px 12px;border-bottom:2px solid var(--linha)}
+  .tabela-produtos td{padding:10px 12px;border-bottom:1px solid var(--linha);vertical-align:middle}
+  .tabela-produtos tr:hover{background:var(--dourado-050)}
+  .pill{display:inline-block;padding:3px 10px;border-radius:999px;font-family:var(--font-mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.04em}
+  .pill.ativo{background:var(--dourado-100);color:#5C4A1E}
+  .pill.inativo{background:#EFEFEF;color:#7A7A7A}
+  .pill.cidade{background:var(--preto);color:var(--dourado-100)}
+  .btn-mini{font-family:var(--font-body);font-size:.72rem;font-weight:700;padding:7px 13px;border-radius:999px;border:1px solid var(--preto);background:none;cursor:pointer;margin-right:6px;color:var(--preto)}
+  .btn-mini:hover{background:var(--preto);color:var(--dourado-100)}
+  .btn-mini.perigo{border-color:#C34A4A;color:#C34A4A}
+  .btn-mini.perigo:hover{background:#C34A4A;color:#fff}
+  .top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+  .top-bar h1{font-size:1.6rem}
+  #painelLogado{display:none}
+</style>
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<section class="section admin-wrap" style="padding-top:44px">
+
+  <div id="painelLogin" class="admin-box admin-login">
+    <h1>Painel da loja</h1>
+    <p>Área restrita para gerenciar o estoque das duas lojas (Surubim e Limoeiro) em um só lugar.</p>
+    <div id="msgLogin" class="msg"></div>
+    <form id="formLogin">
+      <div class="campo">
+        <label for="loginEmail">E-mail</label>
+        <input type="email" id="loginEmail" required autocomplete="username">
+      </div>
+      <div class="campo">
+        <label for="loginSenha">Senha</label>
+        <input type="password" id="loginSenha" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center">Entrar</button>
+    </form>
+  </div>
+
+  <div id="painelLogado">
+    <div class="top-bar">
+      <h1>Produtos das lojas</h1>
+      <button type="button" class="btn-mini" id="btnSair">Sair</button>
+    </div>
+
+    <div id="msgPainel" class="msg"></div>
+
+    <div class="admin-box" style="margin-bottom:32px">
+      <h3 id="formTitulo" style="margin-bottom:18px">Adicionar produto</h3>
+      <form id="formProduto">
+        <input type="hidden" id="pId">
+        <div class="form-grid">
+          <div class="campo">
+            <label for="pCidade">Loja (cidade)</label>
+            <select id="pCidade" required>
+              <option value="Surubim">Surubim</option>
+              <option value="Limoeiro">Limoeiro</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label for="pCategoria">Categoria</label>
+            <select id="pCategoria" required></select>
+          </div>
+          <div class="campo full">
+            <label for="pNome">Nome do produto</label>
+            <input type="text" id="pNome" placeholder="Camisa Social Slim Aramis" required>
+          </div>
+          <div class="campo">
+            <label for="pMarca">Marca</label>
+            <input type="text" id="pMarca" placeholder="Aramis">
+          </div>
+          <div class="campo">
+            <label for="pPreco">Preço (R$)</label>
+            <input type="text" id="pPreco" placeholder="189,90" required>
+          </div>
+          <div class="campo full">
+            <label for="pFotoArquivo">Fotos do produto (pode escolher várias de uma vez)</label>
+            <input type="file" id="pFotoArquivo" accept="image/*" multiple>
+            <input type="hidden" id="pFoto">
+            <div id="fotoPreviewWrap" style="margin-top:10px;display:none;flex-wrap:wrap;gap:10px"></div>
+          </div>
+          <div class="campo">
+            <label for="pTamanhos">Tamanhos (separados por ;)</label>
+            <input type="text" id="pTamanhos" placeholder="P;M;G;GG">
+          </div>
+          <div class="campo">
+            <label for="pCores">Cores (separadas por ;)</label>
+            <input type="text" id="pCores" placeholder="Branco;Azul">
+          </div>
+          <div class="campo">
+            <label for="pDestaque">Marcar como "Destaque"?</label>
+            <select id="pDestaque"><option value="false">Não</option><option value="true">Sim</option></select>
+          </div>
+          <div class="campo">
+            <label for="pAtivo">Visível no site?</label>
+            <select id="pAtivo"><option value="true">Sim</option><option value="false">Não (esconder)</option></select>
+          </div>
+          <div class="campo full">
+            <label for="pDescricao">Descrição curta</label>
+            <textarea id="pDescricao" placeholder="Tecido leve, corte slim, ideal pro dia a dia no trabalho."></textarea>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:8px">
+          <button type="submit" class="btn btn-primary" id="btnSalvar">Adicionar produto</button>
+          <button type="button" class="btn btn-ghost" id="btnCancelarEdicao" style="display:none;color:var(--preto);border-color:var(--preto)">Cancelar edição</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="admin-box">
+      <h3 style="margin-bottom:6px">Produtos cadastrados</h3>
+      <p style="color:var(--ink-soft);font-size:.85rem;margin-bottom:0">Todos os produtos das duas lojas ficam nesta mesma lista — a coluna "Loja" mostra de qual cidade é cada um.</p>
+      <div style="overflow-x:auto">
+        <table class="tabela-produtos" id="tabelaProdutos">
+          <thead>
+            <tr><th>Produto</th><th>Loja</th><th>Categoria</th><th>Preço</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody id="tabelaProdutosBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="main.js"></script>
+<script src="layout.js"></script>
+<script src="produtos.js"></script>
+<script>
+  mountLayout('admin');
+
+  const semBanco = !window.LOJA.supabaseUrl || !window.LOJA.supabaseAnonKey;
+  const msgLoginEl = document.getElementById('msgLogin');
+
+  if(semBanco){
+    msgLoginEl.className = 'msg erro';
+    msgLoginEl.textContent = 'O banco de dados ainda não foi configurado neste site. Preencha supabaseUrl e supabaseAnonKey em main.js (veja o supabase-setup.sql).';
+    document.getElementById('formLogin').style.display = 'none';
+  } else {
+    const supabase = window.supabase.createClient(window.LOJA.supabaseUrl, window.LOJA.supabaseAnonKey);
+
+    const painelLogin = document.getElementById('painelLogin');
+    const painelLogado = document.getElementById('painelLogado');
+    const msgPainel = document.getElementById('msgPainel');
+
+    function mostrarMsg(el, texto, tipo){
+      el.className = 'msg ' + tipo;
+      el.textContent = texto;
+      setTimeout(() => { if(tipo === 'ok') el.className = 'msg'; }, 4000);
+    }
+
+    const selectCategoria = document.getElementById('pCategoria');
+    Object.entries(CATEGORIA_INFO).forEach(([key, info]) => {
+      const opt = document.createElement('option');
+      opt.value = info.label; opt.textContent = info.label;
+      selectCategoria.appendChild(opt);
+    });
+
+    async function checarSessao(){
+      const { data: { session } } = await supabase.auth.getSession();
+      if(session){ mostrarPainel(); } else { mostrarLogin(); }
+    }
+    function mostrarLogin(){ painelLogin.style.display = 'block'; painelLogado.style.display = 'none'; }
+    function mostrarPainel(){ painelLogin.style.display = 'none'; painelLogado.style.display = 'block'; carregarTabela(); }
+
+    document.getElementById('formLogin').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      const senha = document.getElementById('loginSenha').value;
+      const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
+      if(error){
+        let msg = error.message || 'Não foi possível entrar.';
+        if(msg.toLowerCase().includes('email not confirmed')) msg = 'Esse e-mail ainda não foi confirmado no Supabase (Authentication → Users → confirme o e-mail desse usuário).';
+        else if(msg.toLowerCase().includes('invalid login credentials')) msg = 'E-mail ou senha incorretos — confira se esse e-mail aparece em Authentication → Users no Supabase.';
+        mostrarMsg(msgLoginEl, msg, 'erro');
+        return;
+      }
+      mostrarPainel();
+    });
+
+    document.getElementById('btnSair').addEventListener('click', async () => { await supabase.auth.signOut(); mostrarLogin(); });
+
+    async function carregarTabela(){
+      const { data, error } = await supabase.from('produtos').select('*').order('id', { ascending: false });
+      const corpo = document.getElementById('tabelaProdutosBody');
+      if(error){ corpo.innerHTML = `<tr><td colspan="6">Erro ao carregar produtos.</td></tr>`; return; }
+      corpo.innerHTML = data.map(p => `
+        <tr>
+          <td>${escapeHTML(p.nome)}</td>
+          <td><span class="pill cidade">${escapeHTML(p.cidade)}</span></td>
+          <td>${escapeHTML(p.categoria)}</td>
+          <td>${(p.preco||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</td>
+          <td><span class="pill ${p.ativo ? 'ativo' : 'inativo'}">${p.ativo ? 'Visível' : 'Oculto'}</span></td>
+          <td style="white-space:nowrap">
+            <button class="btn-mini" onclick="editarProduto(${p.id})">editar</button>
+            <button class="btn-mini perigo" onclick="excluirProduto(${p.id})">excluir</button>
+          </td>
+        </tr>
+      `).join('') || `<tr><td colspan="6">Nenhum produto cadastrado ainda.</td></tr>`;
+      window._produtosCache = data;
+    }
+
+    function limparFormulario(){
+      document.getElementById('pId').value = '';
+      document.getElementById('formProduto').reset();
+      limparFoto();
+      document.getElementById('formTitulo').textContent = 'Adicionar produto';
+      document.getElementById('btnSalvar').textContent = 'Adicionar produto';
+      document.getElementById('btnCancelarEdicao').style.display = 'none';
+    }
+
+    window.editarProduto = function(id){
+      const p = (window._produtosCache || []).find(x => x.id === id);
+      if(!p) return;
+      document.getElementById('pId').value = p.id;
+      document.getElementById('pCidade').value = p.cidade;
+      document.getElementById('pCategoria').value = p.categoria;
+      document.getElementById('pNome').value = p.nome;
+      document.getElementById('pMarca').value = p.marca || '';
+      document.getElementById('pPreco').value = String(p.preco).replace('.', ',');
+      arquivosNovos = [];
+      fotosAtuais = (p.foto || '').split(';').map(f => f.trim()).filter(Boolean);
+      renderPreviews();
+      document.getElementById('pTamanhos').value = p.tamanhos || '';
+      document.getElementById('pCores').value = p.cores || '';
+      document.getElementById('pDestaque').value = String(!!p.destaque);
+      document.getElementById('pAtivo').value = String(!!p.ativo);
+      document.getElementById('pDescricao').value = p.descricao || '';
+      document.getElementById('formTitulo').textContent = 'Editando: ' + p.nome;
+      document.getElementById('btnSalvar').textContent = 'Salvar alterações';
+      document.getElementById('btnCancelarEdicao').style.display = 'inline-flex';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    document.getElementById('btnCancelarEdicao').addEventListener('click', limparFormulario);
+
+    window.excluirProduto = async function(id){
+      const p = (window._produtosCache || []).find(x => x.id === id);
+      const nome = p ? p.nome : 'este produto';
+      if(!confirm(`Excluir "${nome}" de vez? Essa ação não pode ser desfeita.`)) return;
+      const { error } = await supabase.from('produtos').delete().eq('id', id);
+      if(error){ mostrarMsg(msgPainel, 'Erro ao excluir: ' + error.message, 'erro'); return; }
+      mostrarMsg(msgPainel, 'Produto excluído.', 'ok');
+      carregarTabela();
+    };
+
+    function slugLocal(s){
+      return (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'') || 'produto';
+    }
+
+    const inputFotoArquivo = document.getElementById('pFotoArquivo');
+    const fotoPreviewWrap = document.getElementById('fotoPreviewWrap');
+    let fotosAtuais = [];
+    let arquivosNovos = [];
+
+    function renderPreviews(){
+      const itensExistentes = fotosAtuais.map((url, i) => `
+        <div class="foto-item" data-tipo="existente" data-index="${i}">
+          <img src="${url}" alt="Foto ${i+1}">
+          ${i === 0 ? '<span class="foto-capa">Capa</span>' : ''}
+          <button type="button" class="foto-remover" title="Remover" data-remover-existente="${i}">×</button>
+        </div>`).join('');
+      const itensNovos = arquivosNovos.map((file, i) => `
+        <div class="foto-item" data-tipo="novo" data-index="${i}">
+          <img src="${URL.createObjectURL(file)}" alt="Nova foto ${i+1}">
+          ${(fotosAtuais.length === 0 && i === 0) ? '<span class="foto-capa">Capa</span>' : ''}
+          <button type="button" class="foto-remover" title="Remover" data-remover-novo="${i}">×</button>
+        </div>`).join('');
+      fotoPreviewWrap.innerHTML = itensExistentes + itensNovos;
+      fotoPreviewWrap.style.display = (fotosAtuais.length || arquivosNovos.length) ? 'flex' : 'none';
+      fotoPreviewWrap.querySelectorAll('[data-remover-existente]').forEach(btn => {
+        btn.addEventListener('click', () => { fotosAtuais.splice(Number(btn.getAttribute('data-remover-existente')), 1); renderPreviews(); });
+      });
+      fotoPreviewWrap.querySelectorAll('[data-remover-novo]').forEach(btn => {
+        btn.addEventListener('click', () => { arquivosNovos.splice(Number(btn.getAttribute('data-remover-novo')), 1); renderPreviews(); });
+      });
+    }
+    function limparFoto(){ inputFotoArquivo.value = ''; fotosAtuais = []; arquivosNovos = []; renderPreviews(); }
+    inputFotoArquivo.addEventListener('change', () => {
+      arquivosNovos = arquivosNovos.concat(Array.from(inputFotoArquivo.files));
+      inputFotoArquivo.value = '';
+      renderPreviews();
+    });
+
+    async function enviarFotoParaStorage(file){
+      const nomeArquivo = `${Date.now()}-${Math.random().toString(36).slice(2,7)}-${slugLocal(file.name.replace(/\.[^.]+$/, ''))}.${file.name.split('.').pop()}`;
+      const { error } = await supabase.storage.from('fotos').upload(nomeArquivo, file, { cacheControl: '3600', upsert: false });
+      if(error) throw error;
+      const { data } = supabase.storage.from('fotos').getPublicUrl(nomeArquivo);
+      return data.publicUrl;
+    }
+
+    document.getElementById('formProduto').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('pId').value;
+      const nome = document.getElementById('pNome').value.trim();
+      let precoTxt = document.getElementById('pPreco').value.trim().replace(/[^\d.,]/g,'');
+      precoTxt = precoTxt.includes(',') ? precoTxt.replace(/\./g,'').replace(',','.') : precoTxt;
+      const preco = parseFloat(precoTxt) || 0;
+
+      const btnSalvar = document.getElementById('btnSalvar');
+      const textoOriginalBotao = btnSalvar.textContent;
+
+      let urlsFinais = fotosAtuais.slice();
+      if(arquivosNovos.length){
+        btnSalvar.disabled = true;
+        try{
+          for(let i = 0; i < arquivosNovos.length; i++){
+            btnSalvar.textContent = `Enviando foto ${i+1} de ${arquivosNovos.length}…`;
+            const url = await enviarFotoParaStorage(arquivosNovos[i]);
+            urlsFinais.push(url);
+          }
+        }catch(err){
+          mostrarMsg(msgPainel, 'Erro ao enviar foto: ' + err.message, 'erro');
+          btnSalvar.disabled = false; btnSalvar.textContent = textoOriginalBotao;
+          return;
+        }
+      }
+
+      const payload = {
+        cidade: document.getElementById('pCidade').value,
+        categoria: document.getElementById('pCategoria').value,
+        nome,
+        marca: document.getElementById('pMarca').value.trim(),
+        preco,
+        foto: urlsFinais.join(';') || null,
+        tamanhos: document.getElementById('pTamanhos').value.trim(),
+        cores: document.getElementById('pCores').value.trim(),
+        destaque: document.getElementById('pDestaque').value === 'true',
+        ativo: document.getElementById('pAtivo').value === 'true',
+        descricao: document.getElementById('pDescricao').value.trim()
+      };
+
+      btnSalvar.textContent = 'Salvando…';
+      let error;
+      if(id){
+        ({ error } = await supabase.from('produtos').update(payload).eq('id', id));
+      } else {
+        payload.slug = slugLocal(nome) + '-' + Date.now().toString(36);
+        ({ error } = await supabase.from('produtos').insert(payload));
+      }
+
+      btnSalvar.disabled = false;
+      btnSalvar.textContent = textoOriginalBotao;
+
+      if(error){ mostrarMsg(msgPainel, 'Erro ao salvar: ' + error.message, 'erro'); return; }
+      mostrarMsg(msgPainel, id ? 'Produto atualizado.' : 'Produto adicionado.', 'ok');
+      limparFormulario();
+      carregarTabela();
+    });
+
+    checarSessao();
+  }
+</script>
+</body>
+</html>

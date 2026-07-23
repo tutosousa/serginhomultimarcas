@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Produto — Serginho Multimarcas</title>
+<meta name="description" content="Confira este produto na Serginho Multimarcas.">
+<link rel="icon" href="logo-crop.png">
+<link rel="stylesheet" href="style.css">
+<style>
+  .galeria-thumbs{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+  .galeria-thumbs img{width:74px;height:92px;object-fit:cover;border-radius:8px;cursor:pointer;border:2px solid transparent;opacity:.7;transition:opacity .2s ease,border-color .2s ease}
+  .galeria-thumbs img:hover{opacity:1}
+  .galeria-thumbs img.ativa{opacity:1;border-color:var(--dourado-600)}
+</style>
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<p class="breadcrumb" id="breadcrumb"><a href="index.html">Início</a> / <span id="breadcrumbAtual">Produto</span></p>
+
+<section class="section" style="padding-top:36px">
+  <div id="conteudoProduto">
+    <div class="empty-state">Carregando produto…</div>
+  </div>
+</section>
+
+<div id="ctaCategoria"></div>
+
+<div id="site-footer"></div>
+
+<script src="main.js"></script>
+<script src="layout.js"></script>
+<script src="produtos.js"></script>
+<script>
+  mountLayout('loja');
+
+  (async () => {
+    const wrap = document.getElementById('conteudoProduto');
+
+    function mostrarErro(texto){
+      wrap.innerHTML = `<div class="empty-state">${texto}<br><a href="index.html" class="link-more" style="display:inline-block;margin-top:12px">← Voltar ao início</a></div>`;
+    }
+
+    try{
+      const params = new URLSearchParams(window.location.search);
+      const slug = params.get('slug');
+      if(!slug){ mostrarErro('Produto não especificado.'); return; }
+
+      await carregarCatalogo();
+      const p = CATALOGO.find(item => item.slug === slug);
+      if(!p){ mostrarErro('Esse produto não foi encontrado (pode ter sido vendido ou removido).'); return; }
+
+      const nome = p.nome || 'Produto sem nome';
+      const desc = p.desc || '';
+      const preco = typeof p.preco === 'number' ? p.preco : 0;
+      const tamanhos = Array.isArray(p.tamanhos) ? p.tamanhos : [];
+      const cores = Array.isArray(p.cores) ? p.cores : [];
+      const catLabel = (CATEGORIA_INFO[p.categoria] && CATEGORIA_INFO[p.categoria].label) || '';
+      const icon = (CATEGORIA_INFO[p.categoria] && CATEGORIA_INFO[p.categoria].icon) || 'ic-selo';
+
+      const nomeSeguro = escapeHTML(nome);
+      const descSeguro = escapeHTML(desc);
+      const fotos = fotosDoProduto(p);
+
+      const mediaHTML = fotos.length
+        ? `<img id="fotoPrincipal" src="${fotos[0]}" alt="${nomeSeguro}" style="width:100%;display:block;aspect-ratio:4/5;object-fit:cover"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+           <div class="foto-fallback" style="display:none;align-items:center;justify-content:center;aspect-ratio:4/5">
+             <svg style="width:40%;color:var(--dourado-600)"><use href="icons.svg#${icon}"></use></svg>
+           </div>`
+        : `<div style="display:flex;align-items:center;justify-content:center;aspect-ratio:4/5">
+             <svg style="width:40%;color:var(--dourado-600)"><use href="icons.svg#${icon}"></use></svg>
+           </div>`;
+
+      const thumbsHTML = fotos.length > 1
+        ? `<div class="galeria-thumbs">${fotos.map((f, i) =>
+            `<img src="${f}" alt="Foto ${i+1} de ${nomeSeguro}" class="${i===0?'ativa':''}"
+                 onclick="trocarFotoPrincipal(this,'${f.replace(/'/g,"\\'")}')">`
+          ).join('')}</div>`
+        : '';
+
+      const tamanhosHTML = tamanhos.map(t => `<span>${escapeHTML(t)}</span>`).join('') || '—';
+      const coresTexto = cores.map(c => escapeHTML(c)).join(', ') || '—';
+      const cidadeMsg = p.cidade === 'Limoeiro' ? 'limoeiro' : 'surubim';
+      const linkCompleto = PAGINAS_PRONTAS.has(p.slug) ? produtoLink(p.slug) : `${window.LOJA.siteUrl}/produto.html?slug=${encodeURIComponent(p.slug)}`;
+      const msg = `Olá! Tenho interesse neste produto da Serginho Multimarcas (loja de ${p.cidade}):\\n${nome} - ${fmtPreco(preco)}\\n${linkCompleto}\\n\\nAinda está disponível?`;
+
+      document.title = `${nome} — Serginho Multimarcas`;
+      document.getElementById('breadcrumbAtual').textContent = nome;
+      const lojaHref = cidadeMsg + '.html';
+      document.getElementById('breadcrumb').innerHTML =
+        `<a href="index.html">Início</a> / <a href="${lojaHref}">Loja de ${escapeHTML(p.cidade)}</a> / ${nomeSeguro}`;
+
+      wrap.innerHTML = `
+        <div class="product-detail">
+          <div class="product-detail-media">
+            ${mediaHTML}
+            ${thumbsHTML}
+          </div>
+          <div class="product-detail-info">
+            <p class="eyebrow">${escapeHTML(catLabel)} · Loja de ${escapeHTML(p.cidade)}</p>
+            <h1>${nomeSeguro}</h1>
+            <p class="product-detail-desc">${descSeguro}</p>
+            <div class="product-price">${fmtPreco(preco)}</div>
+            <div class="swatches">${tamanhosHTML}</div>
+            <table class="spec-table">
+              <tr><td>Marca</td><td>${escapeHTML(p.marca || '—')}</td></tr>
+              <tr><td>Cores disponíveis</td><td>${coresTexto}</td></tr>
+              <tr><td>Loja</td><td>${escapeHTML(p.cidade)}</td></tr>
+            </table>
+            <a class="btn btn-primary" data-whats="${escapeHTML(msg)}" data-cidade="${cidadeMsg}" style="margin-top:8px">
+              <svg><use href="icons.svg#ic-whats"></use></svg>
+              Comprar pelo WhatsApp
+            </a>
+            <div style="margin-top:18px">
+              <a class="link-more" href="${lojaHref}">← Voltar para a loja de ${escapeHTML(p.cidade)}</a>
+            </div>
+          </div>
+        </div>`;
+
+      document.getElementById('ctaCategoria').innerHTML = `
+        <section class="cta-strip">
+          <p class="eyebrow" style="justify-content:center;color:#B4AFA3">Não é bem essa a peça?</p>
+          <h2>Veja mais opções na loja de ${escapeHTML(p.cidade)}.</h2>
+          <a class="btn" href="${lojaHref}">Ver loja de ${escapeHTML(p.cidade)}</a>
+        </section>`;
+
+      document.querySelectorAll('[data-whats]').forEach(a => {
+        a.href = whatsLink(a.getAttribute('data-whats'), a.getAttribute('data-cidade'));
+        a.target = '_blank'; a.rel = 'noopener';
+      });
+    }catch(err){
+      console.error('Erro ao carregar a página do produto:', err);
+      mostrarErro('Não foi possível carregar esse produto agora. Tenta recarregar a página.');
+    }
+  })();
+
+  function trocarFotoPrincipal(thumb, url){
+    const principal = document.getElementById('fotoPrincipal');
+    if(principal) principal.src = url;
+    document.querySelectorAll('.galeria-thumbs img').forEach(t => t.classList.remove('ativa'));
+    thumb.classList.add('ativa');
+  }
+</script>
+</body>
+</html>

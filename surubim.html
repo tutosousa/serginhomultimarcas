@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loja de Surubim — Serginho Multimarcas</title>
+<meta name="description" content="Produtos disponíveis na loja de Surubim da Serginho Multimarcas. Compre pelo WhatsApp.">
+<link rel="icon" href="logo-crop.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<p class="breadcrumb"><a href="index.html">Início</a> / Loja de Surubim</p>
+
+<section class="cat-hero">
+  <div class="cat-hero-inner">
+    <div>
+      <p class="eyebrow">Loja física</p>
+      <h1>Surubim</h1>
+      <p>É frente ao point da cidade — moda masculina com curadoria de referência, atendimento exclusivo e as principais marcas.</p>
+    </div>
+    <svg class="cat-hero-icon"><use href="icons.svg#ic-pin"></use></svg>
+  </div>
+</section>
+
+<section class="section">
+  <div class="filters" id="catFilters">
+    <span class="filters-label">Categoria:</span>
+    <button data-filter-cat="camisas">Camisas</button>
+    <button data-filter-cat="calcas">Calças</button>
+    <button data-filter-cat="ternos-blazers">Ternos & Blazers</button>
+    <button data-filter-cat="casacos-jaquetas">Casacos & Jaquetas</button>
+    <button data-filter-cat="infantil">Infantil</button>
+    <button data-filter-cat="acessorios">Acessórios</button>
+  </div>
+  <div class="product-grid" id="grid"></div>
+</section>
+
+<section class="cta-strip">
+  <p class="eyebrow" style="justify-content:center;color:#B4AFA3">Não achou o que procura?</p>
+  <h2 class="reveal">A gente confirma disponibilidade na loja de Surubim pelo WhatsApp.</h2>
+  <a class="btn" data-whats="Olá! Estou vendo o site da loja de Surubim e preciso de ajuda." data-cidade="surubim">Chamar no WhatsApp</a>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="main.js"></script>
+<script src="layout.js"></script>
+<script src="produtos.js"></script>
+<script>
+  mountLayout('surubim');
+  initLojaPage('Surubim', 'grid');
+</script>
+</body>
+</html>

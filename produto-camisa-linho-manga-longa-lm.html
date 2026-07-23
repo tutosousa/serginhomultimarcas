@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Camisa Linho Manga Longa — Serginho Multimarcas</title>
+<meta name="description" content="Camisa Linho Manga Longa - R$ 169,90 - Loja de Limoeiro - Serginho Multimarcas">
+<link rel="icon" href="logo-crop.png">
+<link rel="stylesheet" href="style.css">
+<style>
+  .galeria-thumbs{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+  .galeria-thumbs img{width:74px;height:92px;object-fit:cover;border-radius:8px;cursor:pointer;border:2px solid transparent;opacity:.7;transition:opacity .2s ease,border-color .2s ease}
+  .galeria-thumbs img:hover{opacity:1}
+  .galeria-thumbs img.ativa{opacity:1;border-color:var(--dourado-600)}
+</style>
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<p class="breadcrumb"><a href="index.html">Início</a> / <a href="limoeiro.html">Loja de Limoeiro</a> / Camisa Linho Manga Longa</p>
+
+<section class="section" style="padding-top:36px">
+  <div class="product-detail">
+    <div class="product-detail-media">
+      <div style="display:flex;align-items:center;justify-content:center;aspect-ratio:4/5;background:var(--dourado-050)">
+        <svg style="width:40%;color:var(--dourado-600)"><use href="icons.svg#ic-camisa"></use></svg>
+      </div>
+    </div>
+    <div class="product-detail-info">
+      <p class="eyebrow">Camisas · Loja de Limoeiro</p>
+      <h1>Camisa Linho Manga Longa</h1>
+      <p class="product-detail-desc">Tecido respirável, visual leve e elegante.</p>
+      <div class="product-price">R$ 169,90</div>
+      <div class="swatches">
+        <span>P</span><span>M</span><span>G</span><span>GG</span>
+      </div>
+      <table class="spec-table">
+        <tr><td>Marca</td><td>Ogochi</td></tr>
+        <tr><td>Cores disponíveis</td><td>Bege, Branco</td></tr>
+        <tr><td>Loja</td><td>Limoeiro</td></tr>
+      </table>
+      <a class="btn btn-primary" data-whats="Olá! Tenho interesse na Camisa Linho Manga Longa - R$ 169,90 (loja de Limoeiro) https://serginhomultimarcas.com.br/produto-camisa-linho-manga-longa-lm.html Ainda está disponível?" data-cidade="limoeiro" style="margin-top:8px">
+        <svg><use href="icons.svg#ic-whats"></use></svg>
+        Comprar pelo WhatsApp
+      </a>
+      <div style="margin-top:18px">
+        <a class="link-more" href="limoeiro.html">← Voltar para a loja de Limoeiro</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="main.js"></script>
+<script src="layout.js"></script>
+<script>
+  mountLayout('limoeiro');
+  document.querySelectorAll('[data-whats]').forEach(a => {
+    a.href = whatsLink(a.getAttribute('data-whats'), a.getAttribute('data-cidade'));
+    a.target = '_blank';
+    a.rel = 'noopener';
+  });
+</script>
+</body>
+</html>
